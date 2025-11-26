@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<article class="post-full">
+    <header>
+        <h2>Автор: <a href="{% url 'profile' post.author.username %}">{{ post.author.username }}</a></h2>
+        <small>{{ post.created_at|date:"d M Y H:i" }}</small>
+    </header>
+    <div class="content">
+        {{ post.content|linebreaks }}
+    </div>
+    <div class="actions">
+        <span>Лайков: {{ post.total_likes }}</span>
+        {% if user.is_authenticated %}
+            <a href="{% url 'like_post' post.pk %}" class="btn-small">Лайк</a>
+            {% if user == post.author %}
+                <a href="{% url 'edit_post' post.pk %}" class="btn-small">Редактировать</a>
+                <a href="{% url 'delete_post' post.pk %}" class="btn-small btn-danger">Удалить</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</article>
+
+<section class="comments">
+    <h3>Комментарии ({{ comments.count }})</h3>
+    {% for comment in comments %}
+        <div class="comment">
+            <strong><a href="{% url 'profile' comment.author.username %}">{{ comment.author.username }}</a></strong>
+            <small>{{ comment.created_at|date:"d M Y H:i" }}</small>
+            <p>{{ comment.content }}</p>
+            {% if user == comment.author %}
+                <a href="{% url 'edit_comment' comment.pk %}">Изменить</a>
+                <a href="{% url 'delete_comment' comment.pk %}">Удалить</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+        <h4>Оставить комментарий</h4>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Отправить</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Войдите</a>, чтобы оставить комментарий.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section>
+    <h1>Лента постов</h1>
+    {% for post in posts %}
+        <article class="post-card">
+            <header>
+                <strong><a href="{% url 'profile' post.author.username %}">{{ post.author.username }}</a></strong>
+                <span>{{ post.created_at|date:"d M Y H:i" }}</span>
+            </header>
+            <p>{{ post.content|truncatewords:30 }}</p>
+            <footer>
+                <span>Лайков: {{ post.total_likes }}</span>
+                <span>Комментариев: {{ post.comments.count }}</span>
+                <a href="{% url 'post_detail' post.pk %}">Читать полностью</a>
+            </footer>
+        </article>
+    {% empty %}
+        <p>Постов пока нет.</p>
+    {% endfor %}
+
+    <div class="pagination">
+        {% if posts.has_previous %}
+            <a href="?page=1">&laquo; Первая</a>
+            <a href="?page={{ posts.previous_page_number }}">Назад</a>
+        {% endif %}
+        <span>Страница {{ posts.number }} из {{ posts.paginator.num_pages }}</span>
+        {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}">Вперед</a>
+            <a href="?page={{ posts.paginator.num_pages }}">Последняя &raquo;</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

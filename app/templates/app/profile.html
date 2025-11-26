@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="profile-header">
+    <div class="avatar">
+        {% if profile_user.profile.avatar %}
+            <img src="{{ profile_user.profile.avatar.url }}" alt="Avatar">
+        {% else %}
+            <div class="no-avatar">Нет фото</div>
+        {% endif %}
+    </div>
+    <div class="info">
+        <h2>{{ profile_user.username }}</h2>
+        <p>{{ profile_user.profile.bio|default:"Информации о себе нет." }}</p>
+        {% if user == profile_user %}
+            <a href="{% url 'edit_profile' %}" class="btn">Редактировать профиль</a>
+            <a href="{% url 'delete_profile' %}" class="btn btn-danger">Удалить профиль</a>
+        {% endif %}
+    </div>
+</section>
+
+<hr>
+
+<section>
+    <h3>Посты пользователя</h3>
+    {% for post in posts %}
+        <article class="post-card">
+            <header>
+                <span>{{ post.created_at|date:"d M Y H:i" }}</span>
+            </header>
+            <p>{{ post.content|truncatewords:20 }}</p>
+            <footer>
+                <span>Лайков: {{ post.total_likes }}</span>
+                <span>Комментариев: {{ post.comments.count }}</span>
+                <a href="{% url 'post_detail' post.pk %}">Подробнее</a>
+            </footer>
+        </article>
+    {% empty %}
+        <p>Пользователь еще не написал постов.</p>
+    {% endfor %}
+
+    <div class="pagination">
+        {% if posts.has_previous %}
+            <a href="?page={{ posts.previous_page_number }}">Назад</a>
+        {% endif %}
+        {% if posts.paginator.num_pages > 1 %}
+            <span>Страница {{ posts.number }} из {{ posts.paginator.num_pages }}</span>
+        {% endif %}
+        {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}">Вперед</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
